@@ -79,17 +79,25 @@ main {
     font-weight: bold;
 }
 
-.form-group input {
+.form-group input,
+.form-group select,
+.form-group textarea {
     width: 100%;
     padding: 0.5rem;
     border: 1px solid #ddd;
     border-radius: 4px;
 }
 
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
 .sort-options {
     display: flex;
     gap: 1rem;
     margin-bottom: 1rem;
+    flex-wrap: wrap;
 }
 
 .sort-options button {
@@ -122,10 +130,59 @@ main {
     margin-bottom: 0.5rem;
 }
 
-.rating {
-    color: #f39c12;
-    font-weight: bold;
+.score-display {
     margin: 0.5rem 0;
+}
+
+.score-category {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.3rem;
+}
+
+.total-score {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #eee;
+    font-weight: bold;
+}
+
+.score-label {
+    font-weight: bold;
+}
+
+.score-value {
+    color: #3498db;
+}
+
+.description {
+    margin: 0.5rem 0;
+    color: #666;
+    font-style: italic;
+}
+
+.votes {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+.submission-card {
+    background: white;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#export-result {
+    background: white;
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 8px;
+    max-height: 300px;
+    overflow: auto;
 }
 
 footer {
