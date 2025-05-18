@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Software - FOSS Rater</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>FOSS Rater</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="submit.html">Submit Software</a>
+            <a href="browse.html">Browse Ratings</a>
+        </nav>
+    </header>
+    
+    <main>
+        <section class="submit-form">
+            <h2>Submit Software for Rating</h2>
+            <form id="softwareForm">
+                <div class="form-group">
+                    <label for="name">Software Name*</label>
+                    <input type="text" id="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="website">Website URL</label>
+                    <input type="url" id="website">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Your Email (optional)</label>
+                    <input type="email" id="email">
+                </div>
+                
+                <button type="submit" class="button">Submit for Review</button>
+            </form>
+        </section>
+    </main>
+
+    <script src="js/submissions.js"></script>
+</body>
+</html>
