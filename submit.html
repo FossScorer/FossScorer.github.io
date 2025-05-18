@@ -35,6 +35,37 @@
                     <input type="email" id="email">
                 </div>
                 
+                <div class="form-group">
+                    <label for="priceScore">Price Rating (0-5)</label>
+                    <select id="priceScore" required>
+                        <option value="">Select...</option>
+                        <option value="0">0 - Extremely overpriced</option>
+                        <option value="1">1 - Very expensive</option>
+                        <option value="2">2 - Somewhat expensive</option>
+                        <option value="3">3 - Fairly priced</option>
+                        <option value="4">4 - Good value</option>
+                        <option value="5">5 - Free or excellent value</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fossScore">FOSS Compliance (0-5)</label>
+                    <select id="fossScore" required>
+                        <option value="">Select...</option>
+                        <option value="0">0 - Fully proprietary</option>
+                        <option value="1">1 - Minimal open components</option>
+                        <option value="2">2 - Some open parts</option>
+                        <option value="3">3 - Mostly open</option>
+                        <option value="4">4 - Nearly fully open</option>
+                        <option value="5">5 - Fully FOSS compliant</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description (optional)</label>
+                    <textarea id="description" rows="3"></textarea>
+                </div>
+                
                 <button type="submit" class="button">Submit for Review</button>
             </form>
         </section>
