@@ -1,12 +1,13 @@
 // Store data in a JSON file hosted on GitHub
-const DATA_URL = 'https://raw.githubusercontent.com/FossScorer/FossScorer.github.io/main/data/software.json';
+const DATA_URL = 'data/software.json';
 
 // DOM Elements
 const softwareForm = document.getElementById('softwareForm');
 const softwareList = document.getElementById('softwareList');
 const sortName = document.getElementById('sortName');
-const sortHigh = document.getElementById('sortHigh');
-const sortLow = document.getElementById('sortLow');
+const sortTotal = document.getElementById('sortTotal');
+const sortPrice = document.getElementById('sortPrice');
+const sortFoss = document.getElementById('sortFoss');
 
 // Current software data
 let softwareData = [];
@@ -21,8 +22,9 @@ if (softwareList) {
     
     // Set up sort buttons
     sortName.addEventListener('click', () => sortSoftware('name'));
-    sortHigh.addEventListener('click', () => sortSoftware('high'));
-    sortLow.addEventListener('click', () => sortSoftware('low'));
+    sortTotal.addEventListener('click', () => sortSoftware('total'));
+    sortPrice.addEventListener('click', () => sortSoftware('price'));
+    sortFoss.addEventListener('click', () => sortSoftware('foss'));
 }
 
 // Fetch software data from JSON file
@@ -52,13 +54,29 @@ function displaySoftware(softwareArray) {
         const card = document.createElement('div');
         card.className = 'software-card';
         
-        const stars = '★'.repeat(software.rating) + '☆'.repeat(5 - software.rating);
+        const totalScore = software.priceScore + software.fossScore;
+        const priceStars = '💰'.repeat(software.priceScore) + '♢'.repeat(5 - software.priceScore);
+        const fossStars = '★'.repeat(software.fossScore) + '☆'.repeat(5 - software.fossScore);
         
         card.innerHTML = `
             <h3>${software.name}</h3>
-            <p class="rating">${stars} (${software.rating}/5)</p>
+            <div class="score-display">
+                <div class="score-category">
+                    <span class="score-label">Price:</span>
+                    <span class="score-value">${priceStars} (${software.priceScore}/5)</span>
+                </div>
+                <div class="score-category">
+                    <span class="score-label">FOSS:</span>
+                    <span class="score-value">${fossStars} (${software.fossScore}/5)</span>
+                </div>
+                <div class="total-score">
+                    <span class="score-label">Total:</span>
+                    <span class="score-value">${totalScore}/10</span>
+                </div>
+            </div>
+            ${software.description ? `<p class="description">${software.description}</p>` : ''}
             ${software.website ? `<p><a href="${software.website}" target="_blank">Visit Website</a></p>` : ''}
-            <p>${software.votes} votes</p>
+            <p class="votes">${software.votes} votes</p>
         `;
         
         softwareList.appendChild(card);
@@ -66,30 +84,66 @@ function displaySoftware(softwareArray) {
 }
 
 // Handle form submission
-function handleSubmit(e) {
+async function handleSubmit(e) {
     e.preventDefault();
     
-    const name = document.getElementById('name').value;
-    const website = document.getElementById('website').value;
-    const email = document.getElementById('email').value;
-    
-    // In a real implementation, this would submit to a backend
-    // For GitHub Pages, we'll simulate it with an alert
-    alert(`Thank you for submitting ${name}! We'll review it soon.`);
-    
-    // Reset form
+    const submission = {
+        name: document.getElementById('name').value,
+        website: document.getElementById('website').value,
+        email: document.getElementById('email').value,
+        priceScore: parseInt(document.getElementById('priceScore').value),
+        fossScore: parseInt(document.getElementById('fossScore').value),
+        description: document.getElementById('description').value,
+        timestamp: new Date().toISOString()
+    };
+
+    // Store in localStorage as fallback
+    const localSubmissions = JSON.parse(localStorage.getItem('fossSubmissions') || '[]');
+    localSubmissions.push(submission);
+    localStorage.setItem('fossSubmissions', JSON.stringify(localSubmissions));
+
+    // Send email notification (using FormSubmit.co as a simple solution)
+    try {
+        await fetch('https://formsubmit.co/ajax/williamjf4610@gmail.com', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                name: submission.name,
+                website: submission.website,
+                email: submission.email || 'Not provided',
+                message: `New FOSS Rating Submission:
+                
+Name: ${submission.name}
+Website: ${submission.website || 'Not provided'}
+Email: ${submission.email || 'Not provided'}
+Price Score: ${submission.priceScore}/5
+FOSS Score: ${submission.fossScore}/5
+Description: ${submission.description || 'None'}
+
+Timestamp: ${new Date(submission.timestamp).toLocaleString()}
+                `,
+                _subject: `New FOSS Submission: ${submission.name}`,
+                _replyto: submission.email || 'williamjf4610@gmail.com'
+            })
+        });
+    } catch (emailError) {
+        console.error('Error sending email:', emailError);
+    }
+
+    // Show confirmation
+    alert(`Thank you for submitting ${submission.name}!\n\nPrice Rating: ${submission.priceScore}/5\nFOSS Rating: ${submission.fossScore}/5\n\nWe'll review your submission soon.`);
     e.target.reset();
-    
-    // In a real implementation, you might:
-    // 1. Store in localStorage temporarily
-    // 2. Create a GitHub Issue via API
-    // 3. Redirect to a thank you page
 }
 
 // Sort software
 function sortSoftware(method) {
     // Update active button
-    [sortName, sortHigh, sortLow].forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.sort-options button').forEach(btn => {
+        btn.classList.remove('active');
+    });
     document.getElementById(`sort${method.charAt(0).toUpperCase() + method.slice(1)}`).classList.add('active');
     
     let sortedData = [...softwareData];
@@ -98,11 +152,17 @@ function sortSoftware(method) {
         case 'name':
             sortedData.sort((a, b) => a.name.localeCompare(b.name));
             break;
-        case 'high':
-            sortedData.sort((a, b) => b.rating - a.rating || b.votes - a.votes);
+        case 'total':
+            sortedData.sort((a, b) => 
+                (b.priceScore + b.fossScore) - (a.priceScore + a.fossScore) || 
+                b.votes - a.votes
+            );
             break;
-        case 'low':
-            sortedData.sort((a, b) => a.rating - b.rating || b.votes - a.votes);
+        case 'price':
+            sortedData.sort((a, b) => b.priceScore - a.priceScore || b.votes - a.votes);
+            break;
+        case 'foss':
+            sortedData.sort((a, b) => b.fossScore - a.fossScore || b.votes - a.votes);
             break;
     }
     
