@@ -1,0 +1,34 @@
+[
+    {
+        "name": "LibreOffice",
+        "website": "https://www.libreoffice.org/",
+        "priceScore": 5,
+        "fossScore": 5,
+        "votes": 42,
+        "description": "Free and open source office suite"
+    },
+    {
+        "name": "Blender",
+        "website": "https://www.blender.org/",
+        "priceScore": 5,
+        "fossScore": 5,
+        "votes": 29,
+        "description": "Free and open source 3D creation suite"
+    },
+    {
+        "name": "Visual Studio Code",
+        "website": "https://code.visualstudio.com/",
+        "priceScore": 5,
+        "fossScore": 3,
+        "votes": 56,
+        "description": "Free but contains proprietary components"
+    },
+    {
+        "name": "Adobe Photoshop",
+        "website": "https://www.adobe.com/products/photoshop.html",
+        "priceScore": 1,
+        "fossScore": 0,
+        "votes": 31,
+        "description": "Proprietary and expensive professional tool"
+    }
+]
