@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <div id="auth-container" style="max-width: 400px; margin: 2rem auto; text-align: center;">
+        <h2>Admin Login</h2>
+        <div id="g_id_onload"
+             data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-size="large"
+             data-theme="outline"
+             data-text="sign_in_with"
+             data-shape="rectangular"
+             data-logo_alignment="left">
+        </div>
+    </div>
+
+    <div id="admin-dashboard" style="display: none;">
+        <header>
+            <h1>FOSS Rater Admin</h1>
+            <nav>
+                <a href="index.html">Back to Site</a>
+                <button id="logout" class="button">Logout</button>
+            </nav>
+        </header>
+        
+        <main>
+            <h2>Recent Submissions</h2>
+            <div id="submissions-list"></div>
+            
+            <h2>Export Data</h2>
+            <button id="export-data" class="button">Export to JSON</button>
+            <pre id="export-result"></pre>
+        </main>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
