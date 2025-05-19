@@ -1,4 +1,4 @@
-const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = '882779103735-1in74lemj1ck5ur3k5h433fqdale0qf7.apps.googleusercontent.com';
 const ADMIN_EMAIL = 'williamjf4610@gmail.com';
 
 let currentUser = null;
