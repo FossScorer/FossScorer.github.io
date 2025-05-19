@@ -5,54 +5,34 @@
         "website": "https://www.libreoffice.org/",
         "priceScore": 5,
         "fossScore": 5,
+        "votes": 0,
         "description": "Free and open source office suite"
     },
     {
         "id": "2",
-        "name": "Blender",
-        "website": "https://www.blender.org/",
+        "name": "GIMP",
+        "website": "https://www.gimp.org/",
         "priceScore": 5,
         "fossScore": 5,
-        "description": "Free and open source 3D creation suite"
-    },
+        "votes": 0,
+        "description": "Free and open source image editor"
+    }
     {
         "id": "3",
-        "name": "Visual Studio Code",
-        "website": "https://code.visualstudio.com/",
-        "priceScore": 5,
-        "fossScore": 3,
-        "description": "Free but contains proprietary components"
-    },
-    {
-        "id": "4",
-        "name": "Adobe Photoshop",
-        "website": "https://www.adobe.com/products/photoshop.html",
-        "priceScore": 1,
-        "fossScore": 0,
-        "description": "Proprietary and expensive professional tool"
-    },
-    {
-        "id": "7",
-        "name": "empty",
-        "website": "empty",
-        "priceScore": 0,
-        "fossScore": 0,
-        "description": "default. ignore this"
-    },
-    {
-        "id": "5",
-        "name": "Fedora",
-        "website": "https://fedoraproject.org/",
-        "priceScore": 5,
-        "fossScore": 5,
-        "description": "A free and fully open source Operating System"
-    },
-    {
-        "id": "6",
         "name": "Microsoft Windows",
         "website": "https://www.microsoft.com/en-gb/windows",
         "priceScore": 2,
         "fossScore": 0,
-        "description": "Proprietary and expensive Operating System"
+        "votes": 0,
+        "description": "Expensive and proprietary operating system"
+    },
+    {
+        "id": "4",
+        "name": "Fedora",
+        "website": "https://fedoraproject.org/",
+        "priceScore": 5,
+        "fossScore": 5,
+        "votes": 0,
+        "description": "A free and open source Operating system"
     }
 ]
