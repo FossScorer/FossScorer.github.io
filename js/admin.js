@@ -1,65 +1,105 @@
-// Configure these values
-const ALLOWED_ADMIN_EMAIL = 'williamjf4610@gmail.com';
-const SUBMISSIONS_STORAGE_KEY = 'fossSubmissions';
+function loadAdminData() {
+    // Load submissions
+    const submissions = JSON.parse(localStorage.getItem('submissions') || []);
+    document.getElementById('submissions-list').innerHTML = submissions.map(s => `
+        <div class="submission" data-id="${s.id}">
+            <h3>${s.name}</h3>
+            <p>Submitted by: ${s.email || 'Anonymous'}</p>
+            <p>Price: ${s.priceScore}/5, FOSS: ${s.fossScore}/5</p>
+            <p>${s.description || 'No description'}</p>
+            <button onclick="approveSubmission('${s.id}')">Approve</button>
+            <button onclick="rejectSubmission('${s.id}')">Reject</button>
+        </div>
+    `).join('');
 
-function handleCredentialResponse(response) {
-    const responsePayload = parseJwt(response.credential);
-    
-    if (responsePayload.email === ALLOWED_ADMIN_EMAIL) {
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('admin-dashboard').style.display = 'block';
-        loadSubmissions();
-    } else {
-        alert('Access denied. Only authorized admins can access this page.');
-    }
-}
-
-function parseJwt(token) {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-
-    return JSON.parse(jsonPayload);
-}
-
-function loadSubmissions() {
-    try {
-        const submissions = JSON.parse(localStorage.getItem(SUBMISSIONS_STORAGE_KEY)) || [];
-        
-        const submissionsList = document.getElementById('submissions-list');
-        if (submissions.length === 0) {
-            submissionsList.innerHTML = '<p>No submissions found.</p>';
-            return;
+    // Load all comments
+    let allComments = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('comments_')) {
+            const softwareId = key.replace('comments_', '');
+            const comments = JSON.parse(localStorage.getItem(key));
+            comments.forEach(c => {
+                c.softwareId = softwareId;
+                allComments.push(c);
+            });
         }
-        
-        submissionsList.innerHTML = submissions.map(sub => `
-            <div class="submission-card">
-                <h3>${sub.name}</h3>
-                <p><strong>Submitted:</strong> ${new Date(sub.timestamp).toLocaleString()}</p>
-                <p><strong>Email:</strong> ${sub.email || 'Not provided'}</p>
-                <p><strong>Website:</strong> ${sub.website || 'Not provided'}</p>
-                <p><strong>Price Score:</strong> ${sub.priceScore}/5</p>
-                <p><strong>FOSS Score:</strong> ${sub.fossScore}/5</p>
-                <p><strong>Description:</strong> ${sub.description || 'None'}</p>
-            </div>
-        `).join('');
-    } catch (error) {
-        console.error('Error loading submissions:', error);
-        document.getElementById('submissions-list').innerHTML = '<p>Error loading submissions</p>';
     }
+    
+    document.getElementById('all-comments').innerHTML = allComments.map(c => `
+        <div class="comment" data-id="${c.id}">
+            <strong>${c.author}</strong>
+            <span>on software ID: ${c.softwareId}</span>
+            <p>${c.text}</p>
+            <button onclick="deleteCommentGlobally('${c.softwareId}', '${c.id}')">Delete</button>
+        </div>
+    `).join('');
+}
+
+function approveSubmission(id) {
+    if (!window.currentUser?.isAdmin) return;
+    
+    const submissions = JSON.parse(localStorage.getItem('submissions')) || [];
+    const submission = submissions.find(s => s.id === id);
+    
+    if (submission) {
+        // Add to software list
+        const software = JSON.parse(localStorage.getItem('software')) || [];
+        software.push({
+            id: id,
+            name: submission.name,
+            website: submission.website,
+            priceScore: submission.priceScore,
+            fossScore: submission.fossScore,
+            votes: 0,
+            description: submission.description
+        });
+        localStorage.setItem('software', JSON.stringify(software));
+        
+        // Remove from submissions
+        localStorage.setItem('submissions', JSON.stringify(submissions.filter(s => s.id !== id)));
+        
+        loadAdminData();
+    }
+}
+
+function deleteCommentGlobally(softwareId, commentId) {
+    if (!window.currentUser?.isAdmin) return;
+    
+    const comments = JSON.parse(localStorage.getItem(`comments_${softwareId}`)) || [];
+    localStorage.setItem(`comments_${softwareId}`, JSON.stringify(comments.filter(c => c.id !== commentId)));
+    
+    loadAdminData();
 }
 
 document.getElementById('export-data').addEventListener('click', () => {
-    const submissions = JSON.parse(localStorage.getItem(SUBMISSIONS_STORAGE_KEY)) || [];
-    const exportData = JSON.stringify(submissions, null, 2);
-    document.getElementById('export-result').textContent = exportData;
+    const data = {
+        software: JSON.parse(localStorage.getItem('software')) || [],
+        submissions: JSON.parse(localStorage.getItem('submissions')) || [],
+        comments: []
+    };
+    
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('comments_')) {
+            data.comments.push({
+                softwareId: key.replace('comments_', ''),
+                comments: JSON.parse(localStorage.getItem(key))
+            });
+        }
+    }
+    
+    document.getElementById('export-result').textContent = JSON.stringify(data, null, 2);
 });
 
-document.getElementById('logout').addEventListener('click', () => {
-    // This is a basic logout - in a real app you'd properly revoke the token
-    document.getElementById('auth-container').style.display = 'block';
-    document.getElementById('admin-dashboard').style.display = 'none';
-    document.getElementById('export-result').textContent = '';
-});
+// Initialize admin dashboard
+if (window.location.pathname.includes('admin.html')) {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.currentUser?.isAdmin) {
+            loadAdminData();
+        }
+    });
+}
+
+window.approveSubmission = approveSubmission;
+window.deleteCommentGlobally = deleteCommentGlobally;
