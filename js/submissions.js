@@ -30,15 +30,49 @@ if (softwareList) {
 // Fetch software data from JSON file
 async function fetchSoftwareData() {
     try {
-        const response = await fetch(DATA_URL);
+        const response = await fetch('data/software.json', {
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        
         softwareData = await response.json();
         displaySoftware(softwareData);
     } catch (error) {
-        console.error('Error fetching software data:', error);
-        softwareList.innerHTML = '<p>Error loading software data. Please try again later.</p>';
+        console.error('Error loading data:', error);
+        // Fallback to localStorage
+        softwareData = JSON.parse(localStorage.getItem('softwareData')) || [];
+        if (softwareData.length > 0) {
+            displaySoftware(softwareData);
+        } else {
+            softwareList.innerHTML = `
+                <p>Using default data. Please check your connection.</p>
+                <button onclick="location.reload()">Retry</button>
+            `;
+            loadDefaultData();
+        }
     }
 }
 
+function loadDefaultData() {
+    const defaultData = [
+        {
+            "id": "1",
+            "name": "LibreOffice",
+            "website": "https://www.libreoffice.org/",
+            "priceScore": 5,
+            "fossScore": 5,
+            "votes": 42,
+            "description": "Free and open source office suite"
+        }
+    ];
+    localStorage.setItem('softwareData', JSON.stringify(defaultData));
+    softwareData = defaultData;
+}
 // Display software in the browse page
 function displaySoftware(softwareArray) {
     if (!softwareList) return;
