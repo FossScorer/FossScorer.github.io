@@ -23,6 +23,6 @@ window.addEventListener('error', (event) => {
 
 // Initialize with debug info
 console.log('Initializing FOSS Rater', {
-    repo: 'https://github.com/yourusername/yourrepo',
+    repo: 'https://github.com/fossscorer/fossscorer.github.io',
     lastUpdated: new Date().toISOString()
 });
