@@ -55,7 +55,7 @@ function displaySoftware(softwareArray) {
         card.className = 'software-card';
         
         const totalScore = software.priceScore + software.fossScore;
-        const priceStars = '💰'.repeat(software.priceScore) + '♢'.repeat(5 - software.priceScore);
+        const priceStars = '★'.repeat(software.priceScore) + '☆'.repeat(5 - software.priceScore);
         const fossStars = '★'.repeat(software.fossScore) + '☆'.repeat(5 - software.fossScore);
         
         card.innerHTML = `
