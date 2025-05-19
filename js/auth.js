@@ -1,12 +1,9 @@
-// Configuration
-const GOOGLE_CLIENT_ID = '882779103735-1in74lemj1ck5ur3k5h433fqdale0qf7.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 const ADMIN_EMAIL = 'williamjf4610@gmail.com';
 
-// User state
 let currentUser = null;
 
 function initializeAuth() {
-    // Render Google sign-in button
     const container = document.getElementById('auth-button-container');
     if (!container) return;
 
@@ -26,7 +23,6 @@ function initializeAuth() {
         </div>
     `;
 
-    // Expose to global scope for Google callback
     window.handleAuthResponse = handleCredentialResponse;
 }
 
@@ -35,11 +31,18 @@ function handleCredentialResponse(response) {
     currentUser = {
         email: userData.email,
         name: userData.name,
+        picture: userData.picture,
         isAdmin: userData.email === ADMIN_EMAIL
     };
 
     updateAuthUI();
     checkAdminAccess();
+    
+    // Refresh any forms that need auth
+    if (document.getElementById('softwareForm')) {
+        document.getElementById('auth-required').style.display = 'none';
+        document.getElementById('softwareForm').style.display = 'block';
+    }
 }
 
 function parseJWT(token) {
@@ -57,7 +60,8 @@ function updateAuthUI() {
 
     if (currentUser) {
         authStatus.innerHTML = `
-            <span>Hi, ${currentUser.name}</span>
+            <img src="${currentUser.picture}" alt="${currentUser.name}" style="width:30px;border-radius:50%;">
+            <span>${currentUser.name}</span>
             <button onclick="logout()">Logout</button>
         `;
     } else {
@@ -68,9 +72,16 @@ function updateAuthUI() {
 function logout() {
     currentUser = null;
     updateAuthUI();
-    // Google doesn't provide a direct logout API for this flow
-    alert('You have been logged out');
+    location.reload();
+}
+
+function checkAdminAccess() {
+    if (window.location.pathname.includes('admin.html') && currentUser?.isAdmin) {
+        document.getElementById('auth-container').style.display = 'none';
+        document.getElementById('admin-dashboard').style.display = 'block';
+    }
 }
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', initializeAuth);
+window.logout = logout;
