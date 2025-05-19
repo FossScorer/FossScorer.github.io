@@ -4,28 +4,33 @@ const ADMIN_EMAIL = 'williamjf4610@gmail.com';
 let currentUser = null;
 
 function initializeAuth() {
-    const container = document.getElementById('auth-button-container');
-    if (!container) return;
+    if (typeof google === 'undefined') {
+        console.error('Google identity services not loaded');
+        setTimeout(initializeAuth, 500);
+        return;
+    }
 
-    container.innerHTML = `
-        <div id="g_id_onload"
-            data-client_id="${GOOGLE_CLIENT_ID}"
-            data-callback="handleAuthResponse"
-            data-auto_prompt="false">
-        </div>
-        <div class="g_id_signin"
-            data-type="standard"
-            data-size="large"
-            data-theme="outline"
-            data-text="sign_in_with"
-            data-shape="rectangular"
-            data-logo_alignment="left">
-        </div>
-    `;
+    google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true
+    });
 
-    window.handleAuthResponse = handleCredentialResponse;
+    const button = document.getElementById('auth-button-container');
+    if (button) {
+        google.accounts.id.renderButton(
+            button,
+            { 
+                type: 'standard',
+                size: 'large',
+                theme: 'outline',
+                text: 'signin_with',
+                shape: 'rectangular'
+            }
+        );
+    }
 }
-
 function handleCredentialResponse(response) {
     const userData = parseJWT(response.credential);
     currentUser = {
