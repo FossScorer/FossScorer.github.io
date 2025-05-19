@@ -32,12 +32,12 @@
         "description": "Proprietary and expensive professional tool"
     },
     {
-        "id": "",
-        "name": "",
-        "website": "",
-        "priceScore": 2,
-        "fossScore": 3,
-        "description": ""
+        "id": "7",
+        "name": "empty",
+        "website": "empty",
+        "priceScore": 0,
+        "fossScore": 0,
+        "description": "default. ignore this"
     },
     {
         "id": "5",
