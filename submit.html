@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Submit Software - FOSS Rater</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <header>
@@ -13,13 +14,18 @@
             <a href="index.html">Home</a>
             <a href="submit.html">Submit Software</a>
             <a href="browse.html">Browse Ratings</a>
+            <div id="auth-status"></div>
         </nav>
     </header>
     
     <main>
         <section class="submit-form">
             <h2>Submit Software for Rating</h2>
-            <form id="softwareForm">
+            <div id="auth-required" style="display: none;">
+                <p>Please sign in with Google to submit software</p>
+                <div id="auth-button-container"></div>
+            </div>
+            <form id="softwareForm" style="display: none;">
                 <div class="form-group">
                     <label for="name">Software Name*</label>
                     <input type="text" id="name" required>
@@ -28,11 +34,6 @@
                 <div class="form-group">
                     <label for="website">Website URL</label>
                     <input type="url" id="website">
-                </div>
-                
-                <div class="form-group">
-                    <label for="email">Your Email (optional)</label>
-                    <input type="email" id="email">
                 </div>
                 
                 <div class="form-group">
@@ -71,6 +72,17 @@
         </section>
     </main>
 
+    <script src="js/auth.js"></script>
     <script src="js/submissions.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.currentUser) {
+                document.getElementById('auth-required').style.display = 'none';
+                document.getElementById('softwareForm').style.display = 'block';
+            } else {
+                initializeAuth();
+            }
+        });
+    </script>
 </body>
 </html>
