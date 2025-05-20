@@ -1,14 +1,16 @@
 function loadAdminData() {
+    if (!window.currentUser?.isAdmin) return;
+    
     // Load submissions
-    const submissions = JSON.parse(localStorage.getItem('submissions') || []);
+    const submissions = JSON.parse(localStorage.getItem('submissions')) || [];
     document.getElementById('submissions-list').innerHTML = submissions.map(s => `
-        <div class="submission" data-id="${s.id}">
+        <div class="submission" data-id="${s.timestamp}">
             <h3>${s.name}</h3>
-            <p>Submitted by: ${s.email || 'Anonymous'}</p>
+            <p>Submitted by: ${s.submittedBy || 'Anonymous'}</p>
             <p>Price: ${s.priceScore}/5, FOSS: ${s.fossScore}/5</p>
             <p>${s.description || 'No description'}</p>
-            <button onclick="approveSubmission('${s.id}')">Approve</button>
-            <button onclick="rejectSubmission('${s.id}')">Reject</button>
+            <button onclick="approveSubmission('${s.timestamp}')">Approve</button>
+            <button onclick="rejectSubmission('${s.timestamp}')">Reject</button>
         </div>
     `).join('');
 
@@ -36,43 +38,55 @@ function loadAdminData() {
     `).join('');
 }
 
-function approveSubmission(id) {
+function approveSubmission(timestamp) {
     if (!window.currentUser?.isAdmin) return;
     
     const submissions = JSON.parse(localStorage.getItem('submissions')) || [];
-    const submission = submissions.find(s => s.id === id);
+    const submissionIndex = submissions.findIndex(s => s.timestamp === timestamp);
     
-    if (submission) {
+    if (submissionIndex !== -1) {
+        const submission = submissions[submissionIndex];
+        
         // Add to software list
         const software = JSON.parse(localStorage.getItem('software')) || [];
         software.push({
-            id: id,
             name: submission.name,
             website: submission.website,
             priceScore: submission.priceScore,
             fossScore: submission.fossScore,
-            votes: 0,
             description: submission.description
         });
         localStorage.setItem('software', JSON.stringify(software));
         
         // Remove from submissions
-        localStorage.setItem('submissions', JSON.stringify(submissions.filter(s => s.id !== id)));
+        submissions.splice(submissionIndex, 1);
+        localStorage.setItem('submissions', JSON.stringify(submissions));
         
         loadAdminData();
     }
+}
+
+function rejectSubmission(timestamp) {
+    if (!window.currentUser?.isAdmin) return;
+    
+    const submissions = JSON.parse(localStorage.getItem('submissions')) || [];
+    const updatedSubmissions = submissions.filter(s => s.timestamp !== timestamp);
+    
+    localStorage.setItem('submissions', JSON.stringify(updatedSubmissions));
+    loadAdminData();
 }
 
 function deleteCommentGlobally(softwareId, commentId) {
     if (!window.currentUser?.isAdmin) return;
     
     const comments = JSON.parse(localStorage.getItem(`comments_${softwareId}`)) || [];
-    localStorage.setItem(`comments_${softwareId}`, JSON.stringify(comments.filter(c => c.id !== commentId)));
+    const updatedComments = comments.filter(c => c.id !== commentId);
     
+    localStorage.setItem(`comments_${softwareId}`, JSON.stringify(updatedComments));
     loadAdminData();
 }
 
-document.getElementById('export-data').addEventListener('click', () => {
+document.getElementById('export-data')?.addEventListener('click', () => {
     const data = {
         software: JSON.parse(localStorage.getItem('software')) || [],
         submissions: JSON.parse(localStorage.getItem('submissions')) || [],
@@ -96,10 +110,13 @@ document.getElementById('export-data').addEventListener('click', () => {
 if (window.location.pathname.includes('admin.html')) {
     document.addEventListener('DOMContentLoaded', () => {
         if (window.currentUser?.isAdmin) {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('admin-dashboard').style.display = 'block';
             loadAdminData();
         }
     });
 }
 
 window.approveSubmission = approveSubmission;
+window.rejectSubmission = rejectSubmission;
 window.deleteCommentGlobally = deleteCommentGlobally;
