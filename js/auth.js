@@ -1,55 +1,68 @@
 const GOOGLE_CLIENT_ID = '882779103735-1in74lemj1ck5ur3k5h433fqdale0qf7.apps.googleusercontent.com';
 const ADMIN_EMAIL = 'williamjf4610@gmail.com';
-
 let currentUser = null;
 
+// Initialize auth with session persistence
 function initializeAuth() {
-    if (typeof google === 'undefined') {
-        console.error('Google identity services not loaded');
-        setTimeout(initializeAuth, 500);
-        return;
+    // Check for existing session
+    const savedSession = localStorage.getItem('fossRaterSession');
+    if (savedSession) {
+        try {
+            currentUser = JSON.parse(savedSession);
+            updateAuthUI();
+            checkAdminAccess();
+        } catch (e) {
+            localStorage.removeItem('fossRaterSession');
+        }
     }
 
+    // Load Google auth library if needed
+    if (typeof google === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.onload = initGoogleAuth;
+        document.head.appendChild(script);
+    } else {
+        initGoogleAuth();
+    }
+}
+
+function initGoogleAuth() {
     google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: handleCredentialResponse,
-        auto_select: false,
-        cancel_on_tap_outside: true
+        auto_select: false
     });
-
-    const button = document.getElementById('auth-button-container');
-    if (button) {
-        google.accounts.id.renderButton(
-            button,
-            { 
-                type: 'standard',
-                size: 'large',
-                theme: 'outline',
-                text: 'signin_with',
-                shape: 'rectangular'
-            }
-        );
+    
+    // Render button if container exists
+    const container = document.getElementById('auth-button-container');
+    if (container) {
+        google.accounts.id.renderButton(container, {
+            type: 'standard',
+            size: 'large',
+            theme: 'outline',
+            text: 'signin_with'
+        });
     }
 }
+
 function handleCredentialResponse(response) {
     const userData = parseJWT(response.credential);
-    dispatchAuthEvent(); // Add this line
-
     currentUser = {
         email: userData.email,
         name: userData.name,
         picture: userData.picture,
-        isAdmin: userData.email === ADMIN_EMAIL
+        isAdmin: userData.email === ADMIN_EMAIL,
+        token: response.credential
     };
 
-    updateAuthUI();
-    checkAdminAccess();
+    // Save session to localStorage
+    localStorage.setItem('fossRaterSession', JSON.stringify(currentUser));
     
-    // Refresh any forms that need auth
-    if (document.getElementById('softwareForm')) {
-        document.getElementById('auth-required').style.display = 'none';
-        document.getElementById('softwareForm').style.display = 'block';
-    }
+    updateAuthUI();
+    dispatchAuthEvent();
 }
 
 function parseJWT(token) {
@@ -76,33 +89,59 @@ function updateAuthUI() {
     }
 }
 
-// Add this to your existing auth.js
+function logout() {
+    currentUser = null;
+    localStorage.removeItem('fossRaterSession');
+    
+    if (typeof google !== 'undefined') {
+        google.accounts.id.disableAutoSelect();
+    }
+    
+    updateAuthUI();
+    dispatchAuthEvent();
+    window.location.reload();
+}
+
 function dispatchAuthEvent() {
     const event = new Event('authChange');
     document.dispatchEvent(event);
 }
 
-
-
-// Update logout function to include:
-function logout() {
-    currentUser = null;
-    updateAuthUI();
-    dispatchAuthEvent(); // Add this line
-    window.location.reload();
-}
-
-
-function checkAdminAccess() {
-    if (window.location.pathname.includes('admin.html') && currentUser?.isAdmin) {
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('admin-dashboard').style.display = 'block';
+function validateSession() {
+    const savedSession = localStorage.getItem('fossRaterSession');
+    if (!savedSession) return false;
+    
+    try {
+        const session = JSON.parse(savedSession);
+        if (!session.token) return false;
+        
+        const payload = JSON.parse(atob(session.token.split('.')[1]));
+        if (payload.exp * 1000 < Date.now()) {
+            localStorage.removeItem('fossRaterSession');
+            return false;
+        }
+        return true;
+    } catch (e) {
+        localStorage.removeItem('fossRaterSession');
+        return false;
     }
 }
 
-
 // Initialize on load
-document.addEventListener('DOMContentLoaded', initializeAuth);
+document.addEventListener('DOMContentLoaded', () => {
+    if (validateSession()) {
+        initializeAuth();
+    } else {
+        initializeAuth();
+    }
+});
+
+// Sync logout across tabs
+window.addEventListener('storage', (event) => {
+    if (event.key === 'fossRaterSession' && !event.newValue) {
+        logout();
+    }
+});
+
+// Make logout available globally
 window.logout = logout;
-
-
