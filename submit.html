@@ -19,6 +19,13 @@
     </header>
     
     <main>
+        <div id="auth-gate" style="text-align: center; padding: 2rem;">
+            <h2>🔒 Restricted Access</h2>
+            <p>To contribute to our FOSS database, please sign in with Google</p>
+            <div id="auth-button-container" style="margin: 1rem auto;"></div>
+            <p class="small">We only use your email to prevent spam submissions</p>
+        </div>
+
         <section class="submit-form">
             <h2>Submit Software for Rating</h2>
             <div id="auth-required" style="display: none;">
@@ -73,16 +80,28 @@
     </main>
 
     <script src="js/auth.js"></script>
-    <script src="js/submissions.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Check auth status immediately
+            checkAuthForSubmit();
+            
+            // Also check when auth status might change
+            document.addEventListener('authChange', checkAuthForSubmit);
+        });
+
+        function checkAuthForSubmit() {
+            const authGate = document.getElementById('auth-gate');
+            const formSection = document.querySelector('.submit-form');
+            
             if (window.currentUser) {
-                document.getElementById('auth-required').style.display = 'none';
-                document.getElementById('softwareForm').style.display = 'block';
+                authGate.style.display = 'none';
+                formSection.style.display = 'block';
             } else {
+                authGate.style.display = 'block';
+                formSection.style.display = 'none';
                 initializeAuth();
             }
-        });
+        }
     </script>
 </body>
 </html>
