@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Browse Ratings - FOSS Rater</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
     <header>
@@ -31,7 +32,7 @@
                 <p>Loading software ratings...</p>
             </div>
             
-            <div id="comments-section" style="margin-top: 2rem;">
+            <div id="comments-section">
                 <h3>Comments</h3>
                 <div id="comments-container"></div>
             </div>
@@ -43,8 +44,10 @@
     <script src="js/comments.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize comments for the first software (adjust as needed)
-            initializeComments('1');
+            // Initialize comments for the first software item
+            if (document.getElementById('comments-container')) {
+                initializeComments('1');
+            }
         });
     </script>
 </body>
