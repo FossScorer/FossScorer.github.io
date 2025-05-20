@@ -16,7 +16,7 @@
         "fossScore": 5,
         "votes": 0,
         "description": "Free and open source image editor"
-    }
+    },
     {
         "id": "3",
         "name": "Microsoft Windows",
@@ -34,5 +34,23 @@
         "fossScore": 5,
         "votes": 0,
         "description": "A free and open source Operating system"
+    },
+    {
+        "id": "5",
+        "name": "Firefox",
+        "website": "https://www.mozilla.org/en-GB/firefox/new/",
+        "priceScore": 5,
+        "fossScore": 5,
+        "votes": 0,
+        "description": "A free and fully open source web browser"
+    },
+    {
+        "id": "6",
+        "name": "Google Chrome",
+        "website": "https://www.google.com/intl/en_uk/chrome/",
+        "priceScore": 5,
+        "fossScore": 2,
+        "votes": 0,
+        "description": "A free but closed source web browser. Based on the open source software 'chromium'"
     }
 ]
