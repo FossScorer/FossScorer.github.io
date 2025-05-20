@@ -33,6 +33,8 @@ function initializeAuth() {
 }
 function handleCredentialResponse(response) {
     const userData = parseJWT(response.credential);
+    dispatchAuthEvent(); // Add this line
+
     currentUser = {
         email: userData.email,
         name: userData.name,
@@ -74,11 +76,22 @@ function updateAuthUI() {
     }
 }
 
+// Add this to your existing auth.js
+function dispatchAuthEvent() {
+    const event = new Event('authChange');
+    document.dispatchEvent(event);
+}
+
+
+
+// Update logout function to include:
 function logout() {
     currentUser = null;
     updateAuthUI();
-    location.reload();
+    dispatchAuthEvent(); // Add this line
+    window.location.reload();
 }
+
 
 function checkAdminAccess() {
     if (window.location.pathname.includes('admin.html') && currentUser?.isAdmin) {
@@ -87,6 +100,9 @@ function checkAdminAccess() {
     }
 }
 
+
 // Initialize on load
 document.addEventListener('DOMContentLoaded', initializeAuth);
 window.logout = logout;
+
+
