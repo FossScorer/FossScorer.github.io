@@ -66,7 +66,6 @@ function deleteComment(softwareId, commentId) {
     let comments = JSON.parse(localStorage.getItem(`comments_${softwareId}`)) || [];
     const comment = comments.find(c => c.id === commentId);
     
-    // Check if user is admin or comment owner
     if (currentUser.isAdmin || currentUser.email === comment.authorEmail) {
         comments = comments.filter(c => c.id !== commentId);
         localStorage.setItem(`comments_${softwareId}`, JSON.stringify(comments));
