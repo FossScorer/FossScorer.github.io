@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Submit Software - FOSS Rater</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -19,20 +20,16 @@
     </header>
     
     <main>
-        <div id="auth-gate" style="text-align: center; padding: 2rem;">
+        <div id="auth-gate">
             <h2>🔒 Restricted Access</h2>
-            <p>To contribute to our FOSS database, please sign in with Google</p>
-            <div id="auth-button-container" style="margin: 1rem auto;"></div>
-            <p class="small">We only use your email to prevent spam submissions</p>
+            <p>Please sign in with Google to submit software</p>
+            <div id="auth-button-container"></div>
+            <p class="small">We only use your email to verify submissions</p>
         </div>
 
-        <section class="submit-form">
+        <section class="submit-form" style="display: none;">
             <h2>Submit Software for Rating</h2>
-            <div id="auth-required" style="display: none;">
-                <p>Please sign in with Google to submit software</p>
-                <div id="auth-button-container"></div>
-            </div>
-            <form id="softwareForm" style="display: none;">
+            <form id="softwareForm">
                 <div class="form-group">
                     <label for="name">Software Name*</label>
                     <input type="text" id="name" required>
@@ -80,16 +77,9 @@
     </main>
 
     <script src="js/auth.js"></script>
+    <script src="js/submissions.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Check auth status immediately
-            checkAuthForSubmit();
-            
-            // Also check when auth status might change
-            document.addEventListener('authChange', checkAuthForSubmit);
-        });
-
-        function checkAuthForSubmit() {
             const authGate = document.getElementById('auth-gate');
             const formSection = document.querySelector('.submit-form');
             
@@ -97,11 +87,16 @@
                 authGate.style.display = 'none';
                 formSection.style.display = 'block';
             } else {
-                authGate.style.display = 'block';
-                formSection.style.display = 'none';
                 initializeAuth();
             }
-        }
+            
+            document.addEventListener('authChange', () => {
+                if (window.currentUser) {
+                    authGate.style.display = 'none';
+                    formSection.style.display = 'block';
+                }
+            });
+        });
     </script>
 </body>
 </html>
